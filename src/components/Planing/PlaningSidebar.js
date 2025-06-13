@@ -27,7 +27,7 @@ export default function PlaningSidebar({ activeSection, setActiveSection, scroll
   ]
 
   return (
-    <div className="w-44 bg-white border-r border-gray-200 transition-all duration-300 flex flex-col">
+    <div className="w-full bg-white border-r border-gray-200 transition-all duration-300 flex flex-col sticky top-0 h-screen overflow-y-auto">
       <div className="p-3"></div>
 
       {/* Navigation */}

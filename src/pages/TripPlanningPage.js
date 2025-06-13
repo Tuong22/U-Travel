@@ -10,8 +10,7 @@ import PlacesToVisitSection from "../components/Planing/PlacesToVisitSection"
 import BudgetingSection from "../components/Planing/BudgetingSection"
 import PlaningSidebar from "../components/Planing/PlaningSidebar"
 import SimpleGoogleMap from "./GoogleMap"
-import { hanoiProperties } from "../mock/hanoi"
-import { MapIcon, XCircleIcon } from 'lucide-react'
+import { MapIcon, XCircleIcon } from "lucide-react"
 
 export default function TripPlanningPage() {
   const { tripId } = useParams()
@@ -142,11 +141,14 @@ export default function TripPlanningPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <PlaningSidebar
-        activeSection={activeSection}
-        setActiveSection={setActiveSection}
-        scrollToSection={scrollToSection}
-      />
+      {/* Sidebar container with fixed width */}
+      <div className="w-44 flex-shrink-0">
+        <PlaningSidebar
+          activeSection={activeSection}
+          setActiveSection={setActiveSection}
+          scrollToSection={scrollToSection}
+        />
+      </div>
 
       <div className="flex flex-1 relative">
         <main
@@ -190,9 +192,8 @@ export default function TripPlanningPage() {
 
         {/* Map Container */}
         <div
-          className={`fixed top-0 right-0 h-full bg-white shadow-lg transition-all duration-300 ${
-            showMap ? "w-[350px]" : "w-0"
-          } overflow-hidden`}
+          className={`fixed top-0 right-0 h-full bg-white shadow-lg transition-all duration-300 ${showMap ? "w-[350px]" : "w-0"
+            } overflow-hidden`}
           style={{ marginTop: "64px" }} // Adjust based on your navbar height
         >
           <SimpleGoogleMap location={mapLocation} />
