@@ -24,7 +24,7 @@ export const Home = () => {
   }
 
   const handlePlanTripsClick = () => {
-    navigate("/search")
+    navigate("/planning/new")
   }
 
   const handleViewAllBlogsClick = () => {

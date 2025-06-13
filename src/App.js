@@ -5,6 +5,7 @@ import "./App.css"
 import Navbar from "./components/Navbar/Navbar"
 import { Home } from "./pages/Home"
 import Search from "./pages/Search"
+import TripPlanningPage from "./pages/TripPlanningPage"
 
 function AppContent() {
   const navigate = useNavigate()
@@ -17,12 +18,18 @@ function AppContent() {
     navigate("/search")
   }
 
+  const handlePlanningClick = (tripId) => {
+    navigate(`/planning/${tripId || "new"}`)
+  }
+
   return (
     <>
       <Navbar onLogoClick={handleLogoClick} />
       <Routes>
-        <Route path="/" element={<Home onClickSearch={handleSearchClick} />} />
-        <Route path="/search" element={<Search />} />
+        <Route path="/" element={<Home onClickSearch={handleSearchClick} onClickPlanning={handlePlanningClick} />} />
+        <Route path="/search" element={<Search onClickPlanning={handlePlanningClick} />} />
+        <Route path="/planning/:tripId" element={<TripPlanningPage />} />
+        <Route path="/planning" element={<TripPlanningPage />} />
 
         <Route
           path="*"

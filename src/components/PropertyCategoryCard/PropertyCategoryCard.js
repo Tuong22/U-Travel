@@ -15,7 +15,6 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 
-// Define property types and their specific amenities
 const getPropertyAmenities = (property) => {
   switch (property.type) {
     case "hotel":
