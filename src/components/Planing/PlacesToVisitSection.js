@@ -7,7 +7,7 @@ import { EllipsisOutlined } from "@ant-design/icons"
 import Carousel from "../Carousel/Carousel"
 import { hanoiProperties } from "../../mock/hanoi"
 
-export default function PlacesToVisit({ onAddExpense, onUpdateMap }) {
+export default function PlacesToVisit({  onUpdateMap }) {
   const [collapsed, setCollapsed] = useState(false)
   const [recommendedVisible, setRecommendedVisible] = useState(true)
   const [newPlace, setNewPlace] = useState("")
@@ -18,18 +18,17 @@ export default function PlacesToVisit({ onAddExpense, onUpdateMap }) {
     // Ensure the place has all required properties
     const completePlace = {
       ...place,
+      id: `place-${Date.now()}`,
       images: place.images || [place.image || "/placeholder.svg?height=160&width=240"],
-      title: place.title || "No title provided",
+      title: place.title || place.name || "No title provided",
+      name: place.title || place.name || "Unnamed place", // Use title as primary, fallback to name
       type: place.type || "Custom",
       address: place.address || "Custom location",
     }
-    setPlaces((prevPlaces) => [completePlace, ...prevPlaces])
-    setNewPlace("")
 
-    // Add to budget if onAddExpense is provided
-    if (onAddExpense && place.priceRange) {
-      onAddExpense(place)
-    }
+    // Add to the END of the array (newest items last)
+    setPlaces((prevPlaces) => [...prevPlaces, completePlace])
+    setNewPlace("")
 
     // Update map if onUpdateMap is provided
     if (onUpdateMap) {
@@ -42,11 +41,11 @@ export default function PlacesToVisit({ onAddExpense, onUpdateMap }) {
       const place = {
         id: `place-${Date.now()}`,
         name: newPlace,
+        title: newPlace, // Use the same value for both to avoid duplication
         image: "/placeholder.svg?height=160&width=240",
         description: "Add notes, links, etc. here",
-        images: ["/placeholder.svg?height=160&width=240"], // Add this line
-        title: "New Place", // Add this line
-        type: "Custom", // Add this line
+        images: ["/placeholder.svg?height=160&width=240"],
+        type: "Custom",
         address: newPlace, // Use the entered text as address for map
       }
       addPlace(place)
@@ -54,6 +53,7 @@ export default function PlacesToVisit({ onAddExpense, onUpdateMap }) {
   }
 
   const removePlace = (placeId) => {
+
     setPlaces((prevPlaces) => prevPlaces.filter((p) => p.id !== placeId))
   }
 
@@ -112,7 +112,7 @@ export default function PlacesToVisit({ onAddExpense, onUpdateMap }) {
 
         {!collapsed && (
           <div className="pb-4">
-            <div className="space-y-3 mb-4">
+            <div className="space-y-3 mb-4 px-5">
               {places.map((place, placeIndex) => (
                 <Card
                   key={place.id}
@@ -128,13 +128,18 @@ export default function PlacesToVisit({ onAddExpense, onUpdateMap }) {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start gap-4">
                         <div className="flex-1">
-                          <h4 className="font-medium">{place.name}</h4>
-                          <p className="text-sm text-gray-700 font-bold">{place.title || "No title provided"}</p>
+                          {/* Fixed: Only show one title, prioritize the main title */}
+                          <h4 className="font-medium">{place.title}</h4>
                           <p className="text-sm text-gray-500 mt-0.5">
                             {place.type} • {place.address}
+                            {place.priceRange && (
+                              <span className="ml-2 text-green-600 font-medium">
+                                ${place.priceRange.min} - ${place.priceRange.max}
+                              </span>
+                            )}
                           </p>
                         </div>
-                        {place.images[0] && (
+                        {place.images && place.images[0] && (
                           <img
                             src={place.images[0] || "/placeholder.svg"}
                             alt={place.title}
@@ -203,23 +208,17 @@ export default function PlacesToVisit({ onAddExpense, onUpdateMap }) {
                             className="w-12 h-12 rounded-lg object-cover mr-3"
                           />
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm truncate">{place.name}</p>
+                            <p className="font-medium text-sm truncate">{place.title}</p>
+                            {place.priceRange && (
+                              <p className="text-xs text-green-600 font-medium">
+                                ${place.priceRange.min} - ${place.priceRange.max}
+                              </p>
+                            )}
                           </div>
                           <Button
                             type="text"
                             icon={<Plus className="w-4 h-4" />}
-                            onClick={() =>
-                              addPlace({
-                                id: `place-${Date.now()}`,
-                                name: place.title,
-                                image: place.images[0],
-                                description: "Add notes, links, etc. here",
-                                images: [place.images[0]],
-                                title: place.title,
-                                type: place.type,
-                                address: place.address,
-                              })
-                            }
+                            onClick={() => addPlace(place)}
                             size="small"
                           />
                         </div>

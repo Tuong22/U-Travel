@@ -1,13 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { CalendarDays, ChevronDown, ChevronRight, MapPin, Plus, ImageIcon, ListFilter, Trash2 } from 'lucide-react'
+import { CalendarDays, ChevronDown, ChevronRight, MapPin, Plus, ImageIcon, ListFilter, Trash2 } from "lucide-react"
 import { Button, Card, Input, Avatar, Dropdown } from "antd"
 import { EllipsisOutlined } from "@ant-design/icons"
 import Carousel from "../Carousel/Carousel"
 import { hanoiProperties } from "../../mock/hanoi"
 
-export default function ItinerarySection({ onAddExpense, onUpdateMap }) {
+export default function ItinerarySection({ onAddExpense, onRemoveExpense, onUpdateMap }) {
   const [itineraryDays, setItineraryDays] = useState([
     {
       date: "Fri 6/13",
@@ -44,13 +44,15 @@ export default function ItinerarySection({ onAddExpense, onUpdateMap }) {
   }
 
   const addPlace = (dayIndex, place) => {
+    const placeWithUniqueId = { ...place, id: `day-${dayIndex}-${place.id}-${Date.now()}` }
+
     setItineraryDays((prevDays) =>
-      prevDays.map((day, i) => (i === dayIndex ? { ...day, places: [...day.places, place] } : day)),
+      prevDays.map((day, i) => (i === dayIndex ? { ...day, places: [...day.places, placeWithUniqueId] } : day)),
     )
 
     // Add to budget if onAddExpense is provided
     if (onAddExpense && place.priceRange) {
-      onAddExpense(place)
+      onAddExpense(placeWithUniqueId)
     }
 
     // Update map if onUpdateMap is provided
@@ -60,6 +62,11 @@ export default function ItinerarySection({ onAddExpense, onUpdateMap }) {
   }
 
   const removePlace = (dayIndex, placeId) => {
+    // Remove from expenses first
+    if (onRemoveExpense) {
+      onRemoveExpense(placeId)
+    }
+
     setItineraryDays((prevDays) =>
       prevDays.map((day, i) => (i === dayIndex ? { ...day, places: day.places.filter((p) => p.id !== placeId) } : day)),
     )
@@ -70,6 +77,14 @@ export default function ItinerarySection({ onAddExpense, onUpdateMap }) {
   }
 
   const deleteDay = (dayIndex) => {
+    // Remove all expenses for places in this day
+    const dayToDelete = itineraryDays[dayIndex]
+    if (dayToDelete && onRemoveExpense) {
+      dayToDelete.places.forEach((place) => {
+        onRemoveExpense(place.id)
+      })
+    }
+
     setItineraryDays((prevDays) => prevDays.filter((_, i) => i !== dayIndex))
   }
 
@@ -163,7 +178,7 @@ export default function ItinerarySection({ onAddExpense, onUpdateMap }) {
                 <div className="mt-4 space-y-3">
                   {day.places.map((place, placeIndex) => (
                     <Card
-                      key={`${dayIndex}-${placeIndex}`}
+                      key={place.id}
                       className="relative group"
                       bodyStyle={{ padding: "12px 16px", backgroundColor: "#f6f8f9" }}
                       bordered={false}
@@ -176,13 +191,18 @@ export default function ItinerarySection({ onAddExpense, onUpdateMap }) {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start gap-4">
                             <div className="flex-1">
-                              <h4 className="font-medium">{place.name}</h4>
+                              <h4 className="font-medium">{place.name || place.title}</h4>
                               <p className="text-sm text-gray-700 font-bold">{place.title || "No title provided"}</p>
                               <p className="text-sm text-gray-500 mt-0.5">
                                 {place.type} • {place.address}
+                                {place.priceRange && (
+                                  <span className="ml-2 text-green-600 font-medium">
+                                    ${place.priceRange.min} - ${place.priceRange.max}
+                                  </span>
+                                )}
                               </p>
                             </div>
-                            {place.images[0] && (
+                            {place.images && place.images[0] && (
                               <img
                                 src={place.images[0] || "/placeholder.svg"}
                                 alt={place.title}
@@ -252,11 +272,16 @@ export default function ItinerarySection({ onAddExpense, onUpdateMap }) {
                               />
                               <div className="flex-1 min-w-0">
                                 <p className="font-medium text-sm truncate">{place.title}</p>
+                                {place.priceRange && (
+                                  <p className="text-xs text-green-600 font-medium">
+                                    ${place.priceRange.min} - ${place.priceRange.max}
+                                  </p>
+                                )}
                               </div>
                               <Button
                                 type="text"
                                 icon={<Plus className="w-4 h-4" />}
-                                onClick={() => addPlace(dayIndex, { ...place, id: `day-${dayIndex}-${place.id}` })}
+                                onClick={() => addPlace(dayIndex, place)}
                                 size="small"
                               />
                             </div>

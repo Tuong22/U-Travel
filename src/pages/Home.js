@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { Hero } from "../components/Hero/Hero"
 import { SectionTitle } from "../components/Title/Title"
@@ -15,9 +16,20 @@ import TripCard from "../components/PropertyCard/TripCard"
 import TravelMap from "../components/Map/Map"
 import CityCardGrid from "../components/CityCard/CityCardGrid"
 import { cities } from "../mock/city"
+import LoadingSpinner from "./LoadingSpinner"
 
 export const Home = () => {
   const navigate = useNavigate()
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    // Simulate data loading
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 800)
+
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleSearchClick = () => {
     navigate("/search")
@@ -29,6 +41,10 @@ export const Home = () => {
 
   const handleViewAllBlogsClick = () => {
     console.log("Điều hướng đến trang blog")
+  }
+
+  if (loading) {
+    return <LoadingSpinner />
   }
 
   return (

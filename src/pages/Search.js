@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { Loader2 } from "lucide-react"
 import ArcGISJSAPI from "../components/Map/ArcGISJSMap"
@@ -7,6 +9,7 @@ import PropertyCategoryCard from "../components/PropertyCategoryCard/PropertyCat
 import { hanoiProperties } from "../mock/hanoi"
 import FilterPopup from "./FilterPopup"
 import { motion, AnimatePresence } from "framer-motion"
+import LoadingSpinner from "./LoadingSpinner"
 
 const LoadingOverlay = () => (
   <motion.div
@@ -39,8 +42,18 @@ const Search = () => {
   const [activeFilters, setActiveFilters] = useState([])
   const [showFilterPopup, setShowFilterPopup] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
 
   const [selectedPropertyCoordinates, setSelectedPropertyCoordinates] = useState(null)
+
+  useEffect(() => {
+    // Simulate initial page loading
+    const timer = setTimeout(() => {
+      setInitialLoading(false)
+    }, 800)
+
+    return () => clearTimeout(timer)
+  }, [])
 
   const addFilter = (filter) => {
     setActiveFilters((prevFilters) => {
@@ -131,6 +144,10 @@ const Search = () => {
 
     return () => clearTimeout(timeoutId)
   }, [activeFilters])
+
+  if (initialLoading) {
+    return <LoadingSpinner />
+  }
 
   return (
     <>

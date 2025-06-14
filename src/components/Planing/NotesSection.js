@@ -38,7 +38,7 @@ const NoteComponent = ({ budget = 0, spent = 0 }) => {
           <Title level={5} className="mb-4">
             Reservations and attachments
           </Title>
-          <div className="grid grid-cols-6 gap-2 text-center">
+          <div className="grid grid-cols-3 gap-2 text-center">
             <div className="flex flex-col items-center">
               <div className="w-10 h-10 flex items-center justify-center bg-white rounded-md shadow-sm">
                 <svg
@@ -59,12 +59,6 @@ const NoteComponent = ({ budget = 0, spent = 0 }) => {
             </div>
             <div className="flex flex-col items-center">
               <div className="w-10 h-10 flex items-center justify-center bg-white rounded-md shadow-sm">
-                <HomeOutlined />
-              </div>
-              <Text className="mt-1 text-xs">Lodging</Text>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="w-10 h-10 flex items-center justify-center bg-white rounded-md shadow-sm">
                 <CarOutlined />
               </div>
               <Text className="mt-1 text-xs">Rental Car</Text>
@@ -74,18 +68,6 @@ const NoteComponent = ({ budget = 0, spent = 0 }) => {
                 <CoffeeOutlined />
               </div>
               <Text className="mt-1 text-xs">Restaurant</Text>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="w-10 h-10 flex items-center justify-center bg-white rounded-md shadow-sm">
-                <PaperClipOutlined />
-              </div>
-              <Text className="mt-1 text-xs">Attachment</Text>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="w-10 h-10 flex items-center justify-center bg-white rounded-md shadow-sm">
-                <EllipsisOutlined />
-              </div>
-              <Text className="mt-1 text-xs">Other</Text>
             </div>
           </div>
         </Card>

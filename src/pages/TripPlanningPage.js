@@ -11,11 +11,12 @@ import BudgetingSection from "../components/Planing/BudgetingSection"
 import PlaningSidebar from "../components/Planing/PlaningSidebar"
 import SimpleGoogleMap from "./GoogleMap"
 import { MapIcon, XCircleIcon } from "lucide-react"
+import LoadingSpinner from "./LoadingSpinner"
 
 export default function TripPlanningPage() {
   const { tripId } = useParams()
   const [activeSection, setActiveSection] = useState("overview")
-  const [budget, setBudget] = useState(1000)
+  const [budget, setBudget] = useState(0)
   const [expenses, setExpenses] = useState([])
   const [totalExpenses, setTotalExpenses] = useState(0)
   const [tripData, setTripData] = useState(null)
@@ -39,7 +40,7 @@ export default function TripPlanningPage() {
       try {
         // In a real app, you would fetch data from an API based on tripId
         // For now, we'll just simulate a delay and return mock data
-        await new Promise((resolve) => setTimeout(resolve, 500))
+        await new Promise((resolve) => setTimeout(resolve, 800))
 
         setTripData({
           id: tripId || "new",
@@ -65,13 +66,29 @@ export default function TripPlanningPage() {
     const price = place.priceRange ? place.priceRange.min : 0
     const newExpense = {
       id: `expense-${Date.now()}`,
-      name: place.title,
+      name: place.title || place.name,
       amount: price,
       date: new Date().toISOString(),
       category: place.type,
+      placeId: place.id,
     }
     setExpenses((prev) => [newExpense, ...prev])
     setTotalExpenses((prev) => prev + price)
+  }
+
+  const removeExpense = (placeId) => {
+    setExpenses((prev) => {
+      const expenseToRemove = prev.find((expense) => expense.placeId === placeId)
+      if (expenseToRemove) {
+        setTotalExpenses((prevTotal) => prevTotal - expenseToRemove.amount)
+        return prev.filter((expense) => expense.placeId !== placeId)
+      }
+      return prev
+    })
+  }
+
+  const updateBudget = (newBudget) => {
+    setBudget(newBudget)
   }
 
   const updateMapLocation = (place) => {
@@ -132,11 +149,7 @@ export default function TripPlanningPage() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
-      </div>
-    )
+    return <LoadingSpinner />
   }
 
   return (
@@ -152,12 +165,14 @@ export default function TripPlanningPage() {
 
       <div className="flex flex-1 relative">
         <main
-          className={`flex-1 p-4 ${showMap ? "max-w-[calc(100%-350px)]" : "max-w-full"} transition-all duration-300`}
+          className={`flex-1 p-4 ${showMap ? "max-w-[calc(100%-600px)]" : "max-w-full"} transition-all duration-300`}
         >
           <div className="max-w-4xl mx-auto">
             <div ref={sectionRefs.overview}>
               <TripHeader tripData={tripData} />
             </div>
+
+            <div className="h-9" />
 
             <div ref={sectionRefs.explore}>
               <ExploreSection />
@@ -168,15 +183,26 @@ export default function TripPlanningPage() {
             </div>
 
             <div ref={sectionRefs.places}>
-              <PlacesToVisitSection onAddExpense={addExpense} onUpdateMap={updateMapLocation} />
+              <PlacesToVisitSection
+                onUpdateMap={updateMapLocation}
+              />
             </div>
 
             <div ref={sectionRefs.itinerary}>
-              <ItinerarySection onAddExpense={addExpense} onUpdateMap={updateMapLocation} />
+              <ItinerarySection
+                onAddExpense={addExpense}
+                onRemoveExpense={removeExpense}
+                onUpdateMap={updateMapLocation}
+              />
             </div>
 
             <div ref={sectionRefs.budgeting}>
-              <BudgetingSection />
+              <BudgetingSection
+                budget={budget}
+                setBudget={updateBudget}
+                expenses={expenses}
+                totalExpenses={totalExpenses}
+              />
             </div>
           </div>
         </main>
@@ -190,11 +216,11 @@ export default function TripPlanningPage() {
           {showMap ? <XCircleIcon size={24} /> : <MapIcon size={24} />}
         </button>
 
-        {/* Map Container */}
+        {/* Map Container - Now 600px wide */}
         <div
-          className={`fixed top-0 right-0 h-full bg-white shadow-lg transition-all duration-300 ${showMap ? "w-[350px]" : "w-0"
+          className={`fixed top-0 right-0 h-full bg-white shadow-lg transition-all duration-300 ${showMap ? "w-[600px]" : "w-0"
             } overflow-hidden`}
-          style={{ marginTop: "64px" }} // Adjust based on your navbar height
+          style={{ marginTop: "64px" }}
         >
           <SimpleGoogleMap location={mapLocation} />
         </div>
