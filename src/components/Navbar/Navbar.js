@@ -3,6 +3,9 @@ import { useState, useEffect, useRef } from "react"
 import AvatarPopup from "./AvatarPopup"
 import MoreMenuPopup from "./MoreMenuPopup"
 import logo from '../../assets/image/Logo.svg'
+import { useNavigate } from "react-router-dom"
+import { useAuth } from "../ProtectedRoute/AuthContext"
+import { u } from "framer-motion/client"
 
 export default function Navbar({ onLogoClick }) {
   const [searchQuery, setSearchQuery] = useState("")
@@ -14,6 +17,8 @@ export default function Navbar({ onLogoClick }) {
   const popupRef = useRef(null)
   const moreMenuRef = useRef(null)
   const morePopupRef = useRef(null)
+  const navigate = useNavigate();
+  const { logout } = useAuth()
 
   useEffect(() => {
     const checkIfMobile = () => {
@@ -80,7 +85,13 @@ export default function Navbar({ onLogoClick }) {
   }
 
   const handleAvatarMenuItemClick = (action) => {
-    console.log("Avatar menu item clicked:", action)
+    if (action === "profile") {
+      navigate("/profile");
+    }
+    if (action === "logout") {
+      logout();
+      navigate("/");
+    }
     setIsAvatarPopupOpen(false)
   }
 
